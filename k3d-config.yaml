@@ -1,0 +1,30 @@
+apiVersion: k3d.io/v1alpha3
+kind: Simple
+
+name: jenkins-x-test-1
+servers: 1
+agents: 2
+
+ports:
+  # HTTP
+  - port: 8085:80
+    nodeFilters:
+        - loadbalancer
+  # HTTPS
+  - port: 8086:443
+    nodeFilters:
+        - loadbalancer
+
+volumes: # repeatable flags are represented as YAML lists
+  - volume: jenkins-x-test-1:/data
+
+options:
+  k3d: # k3d runtime settings
+    wait: true # wait for cluster to be usable before returining; same as `--wait` (default: true)
+    timeout: "60s" # wait timeout before aborting; same as `--timeout 60s`
+    disableLoadbalancer: false
+  k3s: # options passed on to K3s itself
+    extraArgs: # additional arguments passed to the `k3s server|agent` command; same as `--k3s-arg`
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
